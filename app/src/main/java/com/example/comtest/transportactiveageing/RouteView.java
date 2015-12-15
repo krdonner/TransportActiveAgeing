@@ -1,6 +1,8 @@
 package com.example.comtest.transportactiveageing;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -27,6 +30,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by fuckface on 2015-10-20.
@@ -38,7 +42,7 @@ public class RouteView extends Fragment {
     ArrayList<String> urls = new ArrayList<>();
     ArrayList<String> responseList = new ArrayList<>();
     Button addOrderButton;
-
+    customAdapter ca;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -48,7 +52,29 @@ public class RouteView extends Fragment {
         addOrderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addOrder();
+
+
+                AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                alert.setTitle("Order");
+                alert.setMessage("Lägg till order");
+                final EditText input = new EditText(getContext());
+                input.setText("skriv ordernummer här");
+                alert.setView(input);
+
+                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        input.setText("hi");
+                        addOrder();
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+                alert.show();
+
+
             }
         });
         user = (ListView) rootView.findViewById(R.id.routeList);
@@ -59,10 +85,10 @@ public class RouteView extends Fragment {
 
     public void addOrder() {
 
-        urls.add("https://activeageing.se/resources/accounts/68");
-        urls.add("https://activeageing.se/resources/accounts/69");
-        urls.add("https://activeageing.se/resources/accounts/70");
-        urls.add("https://activeageing.se/resources/accounts/71");
+        urls.add("https://activeageing.se/resources/accounts/52");
+        urls.add("https://activeageing.se/resources/accounts/53");
+        urls.add("https://activeageing.se/resources/accounts/54");
+        urls.add("https://activeageing.se/resources/accounts/55");
 
         new DataHandler().execute();
         addOrderButton.setVisibility(View.GONE);
@@ -81,7 +107,6 @@ public class RouteView extends Fragment {
             this.addresses = address;
             ctxt = c;
             mInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         }
 
         @Override
@@ -102,7 +127,7 @@ public class RouteView extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-
+            final int pos = position;
             if (convertView == null) {
 
                 convertView = mInflater.inflate(R.layout.list, parent, false);
@@ -112,7 +137,13 @@ public class RouteView extends Fragment {
                 name.setText(Html.fromHtml(displayName) + names.get(position));
                 address.setText(Html.fromHtml(displayAdress) + addresses.get(position));
                 //orderNum.setText(Html.fromHtml(displayOrder)+orderNums[position]);
-                ImageButton info = (ImageButton) convertView.findViewById(R.id.infoButton);
+               final ImageButton info = (ImageButton) convertView.findViewById(R.id.infoButton);
+                info.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        remove(pos);
+                    }
+                });
                 info.setAlpha(0.6f);
 
                 if (position % 2 == 0) {
@@ -131,18 +162,25 @@ public class RouteView extends Fragment {
 
     }
 
-    public void displayList() {
+    public void sortList() {
         for (int i = 0; i < responseList.size(); i++) {
             sortNames(responseList.get(i));
             sortAddresses(responseList.get(i));
         }
         Log.e("sorterad", names.toString());
+    populateList();
 
-        customAdapter ca = new customAdapter(names, addresses, getActivity());
-        user.setAdapter(ca);
 
 
     }
+    public void populateList(){
+
+            ca = new customAdapter(names, addresses, getActivity());
+        user.setAdapter(null);
+        user.setAdapter(ca);
+
+    }
+
 
     public ArrayList sortNames(String response) {
         try {
@@ -220,8 +258,71 @@ public class RouteView extends Fragment {
 
         @Override
         protected void onPostExecute(Void param) {
-            displayList();
+            sortList();
         }
 
     }
+    public void remove(int position){
+        final int pos = position;
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setTitle("Är produkten avlämnad?");
+
+
+        alert.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                Log.e(addresses.get(pos) + "    fdddddadada", names.get(pos));
+
+                names.remove(pos);
+                addresses.remove(pos);
+                updateLists();
+
+                Log.e(names.toString(), addresses.toString());
+            }
+        });
+
+        alert.setNegativeButton("Nej", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            }
+        });
+        alert.show();
+
+
+    }
+    public void updateLists(){
+
+        names.removeAll(Arrays.asList(null, ""));
+        addresses.removeAll(Arrays.asList(null, ""));
+        if(names.size() != 0) {
+            populateList();
+        }
+        else{
+            populateList();
+            finishOrder();
+        }
+    }
+    public void finishOrder(){
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setTitle("Registrera färdig rutt?");
+
+
+        alert.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                urls.clear();
+                responseList.clear();
+                addOrderButton.setVisibility(View.VISIBLE);
+
+                //TODO skicka info till databas
+
+            }
+        });
+
+
+        alert.show();
+
+    }
+
+
+
 }
