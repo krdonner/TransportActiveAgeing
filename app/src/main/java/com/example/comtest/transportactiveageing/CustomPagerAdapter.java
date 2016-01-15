@@ -33,7 +33,7 @@ public class CustomPagerAdapter extends FragmentPagerAdapter {
 
         Fragment routeFragment = new RouteView();
         Fragment googleFragment = new GoogleView();
-        Fragment settingsFragment = new Settings();
+        Fragment tempFragment = new TemperatureView();
 
         Fragment fragment = null;
         if (position == 0) {

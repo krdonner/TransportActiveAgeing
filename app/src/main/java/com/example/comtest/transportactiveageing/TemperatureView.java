@@ -4,8 +4,11 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import java.net.URL;
@@ -13,27 +16,20 @@ import java.net.URL;
 /**
  * Created by Donner on 2016-01-04.
  */
-public class TemperatureView extends FragmentActivity {
+public class TemperatureView extends Fragment {
+    Button tempButton;
 
-    Button tempButton = (Button)findViewById(R.id.tempbutton);
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.temperatureview);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        View rootView = inflater.inflate(R.layout.routeview, container, false);
+          tempButton = (Button)rootView.findViewById(R.id.tempbutton);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(new CustomPagerAdapter(getSupportFragmentManager(),
-                TemperatureView.this));
-
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        tabLayout.setupWithViewPager(viewPager);
 
         monitorTemp();
-
+        return rootView;
     }
 
     public boolean monitorTemp(){
