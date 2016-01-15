@@ -40,6 +40,9 @@ public class CustomPagerAdapter extends FragmentPagerAdapter {
             fragment = routeFragment;
         } else if (position == 1) {
             fragment = googleFragment;
+        }else if (position == 2) {
+            fragment = tempFragment;
+
         }
 
         return fragment;
