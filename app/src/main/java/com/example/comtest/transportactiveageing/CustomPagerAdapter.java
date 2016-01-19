@@ -11,8 +11,8 @@ import android.support.v4.app.FragmentPagerAdapter;
  */
 
 public class CustomPagerAdapter extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 2;
-    private String tabTitles[] = new String[]{"Route", "Map"};
+    final int PAGE_COUNT = 3;
+    private String tabTitles[] = new String[]{"Route", "Map", "Temperature"};
     private Context context;
 
     public CustomPagerAdapter(FragmentManager fm, Context context) {
